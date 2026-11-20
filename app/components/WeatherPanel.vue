@@ -41,7 +41,7 @@ const days = computed(() => {
         <h2 class="truncate text-lg font-semibold text-slate-900">
           {{ place.name }}
         </h2>
-        <p class="truncate text-sm text-slate-500">
+        <p class="line-clamp-2 text-sm text-slate-500">
           {{ place.region ?? formatCoordinates(place.latitude, place.longitude) }}
         </p>
       </div>

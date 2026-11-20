@@ -37,6 +37,7 @@ The app runs at <http://localhost:3000>.
 | `npm run preview`   | Preview the production build locally          |
 | `npm run generate`  | Static build (deployable to any static host)  |
 | `npm run typecheck` | Type-check the project with `vue-tsc`         |
+| `npm run build:cities` | Regenerate `public/cities.json` from GeoNames |
 
 **Environment variables:** none. The Open-Meteo APIs are free and need no API key.
 
@@ -48,8 +49,21 @@ The app runs at <http://localhost:3000>.
 | Styling   | [Tailwind CSS 4](https://tailwindcss.com/) via `@tailwindcss/vite` |
 | Map       | [Leaflet](https://leafletjs.com/) with OpenStreetMap tiles |
 | Data      | [Open-Meteo Forecast API](https://open-meteo.com/en/docs) and [Geocoding API](https://open-meteo.com/en/docs/geocoding-api) |
+| City names for map clicks | [GeoNames](https://www.geonames.org/) `cities15000` dump (CC BY 4.0), bundled as `public/cities.json` |
 
-No other runtime dependencies. HTTP calls use Nuxt's built-in `$fetch`.
+No other runtime dependencies. HTTP calls use Nuxt's built-in `$fetch`. The only dev-only extra is `fflate`, used by the script that builds the city list.
+
+### Naming places picked on the map
+
+Open-Meteo has no reverse geocoding, so a clicked point has no name of its own. Instead of calling a third-party reverse-geocoding API on every click (more requests, plus usage limits of its own), the app ships a compact list of the ~32,000 cities with a population of 15,000 or more. The list comes from GeoNames, is about 440 KB gzipped, and is loaded once in the background.
+
+On each click the nearest city is found locally, and the place is labelled:
+
+- **Within 5 km:** the city itself, e.g. *Patras · Western Greece, Greece*
+- **Within 150 km:** *Near Kórinthos · 13 km away · Peloponnese, Greece*
+- **Farther away (open sea, remote areas):** the coordinates, with *304 km from Praia, Cabo Verde* as the subtitle
+
+To regenerate the list from the latest GeoNames data, run `npm run build:cities`.
 
 **Rendering mode:** the app runs as an SPA (`ssr: false`). Everything it does (the map, geolocation, `sessionStorage`) runs in the browser, so server rendering would add complexity without benefit.
 
@@ -67,6 +81,7 @@ app/
 │   ├── useForecast.ts           # Cached forecast requests
 │   ├── useGeocoding.ts          # Cached place search
 │   ├── useSavedPlaces.ts        # Saved places, persisted in sessionStorage
+│   ├── useNearestCity.ts        # Names clicked points after the nearest city
 │   ├── useCurrentPosition.ts    # Browser geolocation
 │   └── useApiStats.ts           # Request/cache counters shown in the footer
 ├── utils/                       # Formatting, WMO weather codes, place helpers, storage
@@ -90,11 +105,11 @@ Saved places are stored in `sessionStorage`. They survive page reloads but are c
 
 ## 3. Incomplete requirements
 
-- **Place names for map clicks:** Open-Meteo has no reverse geocoding, so places picked on the map (or via *My location*) are labelled with their coordinates instead of a town name.
+- **Exact place names for map clicks:** places picked on the map are named after the nearest city with 15,000+ inhabitants (see above), so villages and smaller towns are not named.
 
 ## 4. Next steps
 
-- Reverse geocoding (e.g. Nominatim) to name clicked points
+- A spatial index (e.g. a k-d tree) for the nearest-city lookup, and a denser city list (GeoNames `cities5000`) loaded per region
 - °C / °F and km/h / mph toggle (can be done client-side without new requests)
 - Hourly forecast chart (temperature and precipitation) for the selected place
 - Side-by-side comparison view for saved places
@@ -107,4 +122,4 @@ Saved places are stored in `sessionStorage`. They survive page reloads but are c
 
 - The search bar is a keyboard-accessible combobox: ↑/↓ to move, Enter to choose the highlighted suggestion, Esc to close.
 - The layout is responsive. On small screens the weather panel and saved places stack below the map.
-- Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0). Map data and tiles © OpenStreetMap contributors.
+- Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0). City names by [GeoNames](https://www.geonames.org/) (CC BY 4.0). Map data and tiles © OpenStreetMap contributors.

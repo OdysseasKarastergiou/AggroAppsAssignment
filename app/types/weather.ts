@@ -30,6 +30,19 @@ export interface SavedPlace extends Place {
   snapshot?: WeatherSnapshot
 }
 
+export interface City {
+  name: string
+  region?: string
+  country: string
+  latitude: number
+  longitude: number
+}
+
+export interface NearestCity {
+  city: City
+  distanceKm: number
+}
+
 export interface GeocodingResult {
   id: number
   name: string

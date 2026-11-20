@@ -8,6 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
+    "build:cities": "node scripts/build-cities.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
     "@types/leaflet": "^1.9.22",
+    "fflate": "^0.8.3",
     "tailwindcss": "^4.3.5",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.14"

@@ -4,7 +4,13 @@ import type { ForecastResult, Place, SelectionSource, Selection } from '~/types/
 const { getForecast } = useForecast()
 const { places: savedPlaces, isSaved, save, remove, updateSnapshot } = useSavedPlaces()
 const { locate, locating, error: locationError } = useCurrentPosition()
+const { loadCities, findNearestCity } = useNearestCity()
 const stats = useApiStats()
+
+// The city list is a static file of our own, so loading it up front costs no API requests.
+onMounted(() => {
+  loadCities().catch(() => {})
+})
 
 const weatherMap = useTemplateRef('weatherMap')
 
@@ -37,13 +43,16 @@ async function showPlace(place: Place, source: SelectionSource): Promise<void> {
   }
 }
 
-function onMapPick(latitude: number, longitude: number): void {
-  showPlace(placeFromCoordinates(latitude, longitude), 'map')
+async function onMapPick(latitude: number, longitude: number): Promise<void> {
+  const nearest = await findNearestCity(latitude, longitude)
+  showPlace(placeFromCoordinates(latitude, longitude, 'point', nearest), 'map')
 }
 
 async function showMyLocation(): Promise<void> {
   const coords = await locate()
-  if (coords) showPlace(placeFromCoordinates(coords.latitude, coords.longitude, 'current'), 'geolocation')
+  if (!coords) return
+  const nearest = await findNearestCity(coords.latitude, coords.longitude)
+  showPlace(placeFromCoordinates(coords.latitude, coords.longitude, 'current', nearest), 'geolocation')
 }
 
 function toggleSave(): void {
@@ -138,6 +147,7 @@ function closePanel(): void {
       <footer class="flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:justify-between">
         <span>
           Weather data by <a href="https://open-meteo.com/" class="underline hover:text-slate-700" target="_blank" rel="noopener">Open-Meteo.com</a>
+          · City names by <a href="https://www.geonames.org/" class="underline hover:text-slate-700" target="_blank" rel="noopener">GeoNames</a>
         </span>
         <span>
           API requests since page load: {{ stats.forecastRequests }} forecast · {{ stats.geocodingRequests }} search ·
