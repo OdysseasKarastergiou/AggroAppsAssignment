@@ -2,7 +2,7 @@
 import type { ForecastResult, Place, SelectionSource, Selection } from '~/types/weather'
 
 const { getForecast } = useForecast()
-const { places: savedPlaces, isSaved, save, remove, updateSnapshot } = useSavedPlaces()
+const { places: savedPlaces, isSaved, save, remove, clear: clearSaved, updateSnapshot } = useSavedPlaces()
 const { locate, locating, error: locationError } = useCurrentPosition()
 const { loadCities, findNearestCity } = useNearestCity()
 const stats = useApiStats()
@@ -139,6 +139,7 @@ function closePanel(): void {
             :active-id="selectedPlace?.id"
             @select="place => showPlace(place, 'saved')"
             @remove="remove"
+            @clear="clearSaved"
             @show-all="weatherMap?.showAllSaved()"
           />
         </aside>

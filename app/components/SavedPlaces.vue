@@ -10,6 +10,7 @@ const emit = defineEmits<{
   select: [place: SavedPlace]
   remove: [id: string]
   showAll: []
+  clear: []
 }>()
 </script>
 
@@ -19,14 +20,23 @@ const emit = defineEmits<{
       <h2 class="text-base font-semibold text-slate-900">
         Saved Places
       </h2>
-      <button
-        v-if="places.length > 1"
-        type="button"
-        class="text-sm font-medium text-sky-700 hover:underline"
-        @click="emit('showAll')"
-      >
-        Show all on map
-      </button>
+      <div v-if="places.length" class="flex items-center gap-3">
+        <button
+          v-if="places.length > 1"
+          type="button"
+          class="text-sm font-medium text-sky-700 hover:underline"
+          @click="emit('showAll')"
+        >
+          Show all locations
+        </button>
+        <button
+          type="button"
+          class="text-sm font-medium text-red-600 hover:underline"
+          @click="emit('clear')"
+        >
+          Clear
+        </button>
+      </div>
     </header>
 
     <p v-if="!places.length" class="mt-3 text-sm text-slate-500">

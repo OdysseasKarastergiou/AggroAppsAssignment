@@ -24,11 +24,16 @@ export function useSavedPlaces() {
     persist()
   }
 
+  function clear(): void {
+    places.value = []
+    persist()
+  }
+
   function updateSnapshot(id: string, snapshot: WeatherSnapshot): void {
     if (!isSaved(id)) return
     places.value = places.value.map(place => (place.id === id ? { ...place, snapshot } : place))
     persist()
   }
 
-  return { places, isSaved, save, remove, updateSnapshot }
+  return { places, isSaved, save, remove, clear, updateSnapshot }
 }
