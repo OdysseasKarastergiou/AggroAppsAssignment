@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer base {
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  /* Leaflet div icons are rendered with a 0x0 box; the content is centred on the coordinate. */
+  .map-marker {
+    @apply absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2;
+  }
+
+  .selection-pin {
+    @apply relative block size-[18px] rounded-full border-[3px] border-white bg-sky-600 shadow-md;
+  }
+
+  .selection-pin::after {
+    content: "";
+    @apply absolute -inset-[9px] rounded-full border-2 border-sky-500;
+    animation: selection-pulse 1.6s ease-out infinite;
+  }
+
+  .saved-marker {
+    @apply flex items-center gap-1 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-800 shadow-md ring-1 ring-slate-300 transition hover:ring-sky-500;
+  }
+}
+
+@keyframes selection-pulse {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
